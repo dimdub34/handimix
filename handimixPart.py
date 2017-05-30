@@ -49,7 +49,7 @@ class PartieHM(Partie):
         logger.debug(u"{} New Period".format(self.joueur))
         self.currentperiod = RepetitionsHM(period)
         self.currentperiod.HM_group = self.joueur.groupe
-        self.currentperiod.HM_hand = self.joueur.handicap
+        self.currentperiod.HM_handicap = self.joueur.handicap
         self.currentperiod.HM_group_type = self.group_type
         self.currentperiod.HM_nb_handicap_in_group = self.nb_handicap_in_group
         self._le2mserv.gestionnaire_base.ajouter(self.currentperiod)
@@ -185,6 +185,7 @@ class RepetitionsHM(Base):
         ForeignKey("partie_handimix.partie_id"))
 
     HM_period = Column(Integer)
+    HM_handicap = Column(Integer)
     HM_treatment = Column(Integer)
     HM_nb_handicap = Column(Integer)
     HM_nb_handicap_in_group = Column(Integer)
