@@ -5,6 +5,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, Float, ForeignKey, String
 import logging
 from datetime import datetime
+import numpy as np
 from util.utiltools import get_module_attributes
 from server.servbase import Base
 from server.servparties import Partie
@@ -24,9 +25,13 @@ class PartieHM(Partie):
         super(PartieHM, self).__init__("handimix", "HM")
         self._le2mserv = le2mserv
         self.joueur = joueur
+        self.group_type = pms.WITHOUT_HAND  # default value
+        self.nb_handicap_in_group = 0  # default value
         self.HM_gain_ecus = 0
         self.HM_gain_euros = 0
         # joueur a un parametre handicap fixé par l'écran serveur
+        if not hasattr(self.joueur, "handicap"):
+            self.joueur.handicap = False
 
     @defer.inlineCallbacks
     def configure(self, *args):
@@ -44,6 +49,9 @@ class PartieHM(Partie):
         logger.debug(u"{} New Period".format(self.joueur))
         self.currentperiod = RepetitionsHM(period)
         self.currentperiod.HM_group = self.joueur.groupe
+        self.currentperiod.HM_hand = self.joueur.handicap
+        self.currentperiod.HM_group_type = self.group_type
+        self.currentperiod.HM_nb_handicap_in_group = self.nb_handicap_in_group
         self._le2mserv.gestionnaire_base.ajouter(self.currentperiod)
         self.repetitions.append(self.currentperiod)
         yield (
@@ -59,15 +67,15 @@ class PartieHM(Partie):
         """
         logger.debug(u"{} Decision".format(self.joueur))
         debut = datetime.now()
-        self.currentperiod.HM_public = \
+        self.currentperiod.HM_public_account = \
             yield(
                 self.remote.callRemote("display_decision"))
-        self.currentperiod.HM_decisiontime = \
+        self.currentperiod.HM_decision_time = \
             (datetime.now() - debut).seconds
-        self.currentperiod.HM_indiv = \
-            pms.DOTATION - self.currentperiod.HM_public
+        self.currentperiod.HM_indiv_account = \
+            pms.DOTATION - self.currentperiod.HM_public_account
         self.joueur.info(u"{}".format(
-            self.currentperiod.HM_public))
+            self.currentperiod.HM_public_account))
         self.joueur.remove_waitmode()
 
     def compute_periodpayoff(self):
@@ -78,17 +86,17 @@ class PartieHM(Partie):
         logger.debug(u"{} Period Payoff".format(self.joueur))
 
         # indiv
-        self.currentperiod.HM_indivpayoff = \
-            self.currentperiod.HM_indiv * pms.RENDEMENT_INDIV
+        self.currentperiod.HM_payoff_from_indiv_account = \
+            self.currentperiod.HM_indiv_account * pms.RENDEMENT_INDIV
 
         # coll
-        self.currentperiod.HM_publicpayoff = \
-            self.currentperiod.HM_publicgroup * pms.RENDEMENT_COLL
+        self.currentperiod.HM_payoff_from_public_account = \
+            self.currentperiod.HM_public_account_group * pms.RENDEMENT_COLL
 
         # total
         self.currentperiod.HM_periodpayoff = \
-            self.currentperiod.HM_indivpayoff + \
-            self.currentperiod.HM_publicpayoff
+            self.currentperiod.HM_payoff_from_indiv_account + \
+            self.currentperiod.HM_payoff_from_public_account
 
         # cumulative payoff since the first period
         if self.currentperiod.HM_period < 2:
@@ -122,9 +130,15 @@ class PartieHM(Partie):
 
         self.HM_gain_ecus = \
             self.currentperiod.HM_cumulativepayoff
-        self.HM_gain_euros = \
-            float(self.HM_gain_ecus) * \
-            float(pms.TAUX_CONVERSION)
+        self.HM_gain_euros = float(np.round(float(self.HM_gain_ecus) *
+                                      float(pms.TAUX_CONVERSION), 2))
+        if pms.EXPECTATION:
+            # ajout des expectations
+            expectations_payoffs = sum(
+                [p.HM_payoff_from_expectation for p in self.repetitions])
+            self.joueur.info(u"PP {}, EP {}".format(
+                self.HM_gain_euros, expectations_payoffs))
+            self.HM_gain_euros += expectations_payoffs
         yield (self.remote.callRemote(
             "set_payoffs", self.HM_gain_euros, self.HM_gain_ecus))
 
@@ -143,6 +157,25 @@ class PartieHM(Partie):
         self.joueur.info(u"{}".format(self.currentperiod.HM_expectation))
         self.joueur.remove_waitmode()
 
+    @defer.inlineCallbacks
+    def display_group_composition(self):
+        yield(self.remote.callRemote("display_group_composition", self.group_type))
+        self.joueur.info("Ok")
+        self.joueur.remove_waitmode()
+
+    def compute_expectations_payoffs(self):
+        logger.debug(u"{} compute_expectations_payoffs".format(self.joueur))
+        self.currentperiod.HM_public_account_average_others = \
+            int((self.currentperiod.HM_public_account_group -
+             self.currentperiod.HM_public_account) / (pms.TAILLE_GROUPES - 1))
+        self.currentperiod.HM_payoff_from_expectation = \
+            pms.get_payoff_expectation(
+                self.currentperiod.HM_expectation,
+                self.currentperiod.HM_public_account_average_others)
+        self.joueur.info(u"{}".format(
+            self.currentperiod.HM_payoff_from_expectation))
+        self.joueur.remove_waitmode()
+
 
 class RepetitionsHM(Base):
     __tablename__ = 'partie_handimix_repetitions'
@@ -153,22 +186,30 @@ class RepetitionsHM(Base):
 
     HM_period = Column(Integer)
     HM_treatment = Column(Integer)
+    HM_nb_handicap = Column(Integer)
+    HM_nb_handicap_in_group = Column(Integer)
     HM_group = Column(String)
     HM_group_type = Column(Integer)
+    HM_expectation = Column(Integer)
     HM_indiv_account = Column(Integer)
     HM_public_account = Column(Integer)
     HM_public_account_group = Column(Integer)
+    HM_public_account_average_others = Column(Integer)
     HM_decision_time = Column(Integer)
+    HM_payoff_from_expectation = Column(Integer)
     HM_payoff_from_indiv_account = Column(Float)
     HM_payoff_from_public_account = Column(Float)
-    HM_expectation = Column(Integer)
     HM_periodpayoff = Column(Float)
     HM_cumulativepayoff = Column(Float)
 
     def __init__(self, periode):
         self.HM_treatment = pms.TREATMENT
+        self.HM_nb_handicap = pms.NB_HANDICAP
         self.HM_period = periode
         self.HM_decision_time = 0
+        self.HM_payoff_from_expectation = 0
+        self.HM_payoff_from_indiv_account = 0
+        self.HM_payoff_from_public_account = 0
         self.HM_periodpayoff = 0
         self.HM_cumulativepayoff = 0
 

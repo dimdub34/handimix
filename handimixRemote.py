@@ -6,7 +6,7 @@ import logging
 import random
 from client.cltgui.cltguidialogs import GuiRecapitulatif
 import handimixParams as pms
-from handimixGui import GuiDecision, DExpectation
+from handimixGui import GuiDecision, DExpectation, HISTO_WIDTH
 import handimixTexts as texts_HM
 
 
@@ -19,10 +19,6 @@ class RemoteHM(IRemote):
     """
     def __init__(self, le2mclt):
         IRemote.__init__(self, le2mclt)
-        self._histo_vars = ["HM_period", "HM_indiv", "HM_public",
-                            "HM_publicgroup", "HM_periodpayoff",
-                            "HM_cumulativepayoff"]
-        self.histo.append(texts_HM.get_histo_head())
 
     def remote_configure(self, params):
         logger.info(u"{} Configure".format(self._le2mclt.uid))
@@ -66,9 +62,15 @@ class RemoteHM(IRemote):
             ecran_recap = GuiRecapitulatif(
                 defered, self._le2mclt.automatique, self._le2mclt.screen,
                 self.currentperiod, self.histo,
-                texts_HM.get_text_summary(period_content))
+                texts_HM.get_text_summary(period_content),
+                size_histo=(HISTO_WIDTH, 120))
             ecran_recap.show()
             return defered
+
+    def remote_display_group_composition(self, group_type):
+        logger.debug("Group type: {}".format(group_type))
+        text = texts_HM.get_text_composition(group_type)
+        return self.le2mclt.get_remote("base").remote_display_information(text)
 
     def remote_display_expectations(self):
         """

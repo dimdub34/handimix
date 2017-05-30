@@ -10,6 +10,9 @@ import handimixTexts as textes_HM
 from handimixTexts import trans_HM
 
 
+HISTO_WIDTH = 1000
+
+
 logger = logging.getLogger("le2m")
 
 
@@ -20,7 +23,7 @@ class GuiDecision(QtGui.QDialog):
         # variables
         self._defered = defered
         self._automatique = automatique
-        self._historique = GuiHistorique(self, historique)
+        self._historique = GuiHistorique(self, historique, size=(HISTO_WIDTH, 500))
 
         layout = QtGui.QVBoxLayout(self)
 
@@ -88,9 +91,20 @@ class DConfigure(QtGui.QDialog):
         # treatment
         self._combo_treatment = QtGui.QComboBox()
         self._combo_treatment.addItems(
-            list(sorted(pms.TREATMENTS_NAMES.viewvalues())))
+            [v for k, v in sorted(pms.TREATMENTS_NAMES.items())])
         self._combo_treatment.setCurrentIndex(pms.TREATMENT)
         form.addRow(QtGui.QLabel(u"Traitement"), self._combo_treatment)
+        
+        # nombre de personnes à validité réduite
+        self._spin_handicap = QtGui.QSpinBox()
+        self._spin_handicap.setMinimum(0)
+        self._spin_handicap.setMaximum(20)
+        self._spin_handicap.setSingleStep(1)
+        self._spin_handicap.setValue(pms.NB_HANDICAP)
+        self._spin_handicap.setButtonSymbols(QtGui.QSpinBox.NoButtons)
+        self._spin_handicap.setMaximumWidth(50)
+        form.addRow(QtGui.QLabel(u"Nombre de personnes à validité réduite"),
+                    self._spin_handicap)
 
         # nombre de périodes
         self._spin_periods = QtGui.QSpinBox()
@@ -135,7 +149,13 @@ class DConfigure(QtGui.QDialog):
         self._spin_rendement_coll.setMaximumWidth(50)
         form.addRow(QtGui.QLabel(u"Rendement du compte collectif"),
                     self._spin_rendement_coll)
-        
+
+        # expectation
+        self._checkbox_expectation = QtGui.QCheckBox()
+        self._checkbox_expectation.setChecked(pms.EXPECTATION)
+        form.addRow(QtGui.QLabel(trans_HM(u"Expectations")),
+                    self._checkbox_expectation)
+
         # Taux de conversion
         self._spin_conversion_rate = QtGui.QDoubleSpinBox()
         self._spin_conversion_rate.setMinimum(0)
@@ -159,13 +179,24 @@ class DConfigure(QtGui.QDialog):
         self.setFixedSize(self.size())
 
     def _accept(self):
-        pms.TREATMENT = self._combo_treatment.currentIndex()
-        pms.NOMBRE_PERIODES = self._spin_periods.value()
-        pms.TAILLE_GROUPES = self._spin_groups.value()
-        pms.RENDEMENT_INDIV = self._spin_rendement_indiv.value()
-        pms.RENDEMENT_COLL = self._spin_rendement_coll.value()
-        pms.TAUX_CONVERSION = self._spin_conversion_rate.value()
-        self.accept()
+        try:
+            pms.TREATMENT = self._combo_treatment.currentIndex()
+            pms.NB_HANDICAP = self._spin_handicap.value()
+            if pms.TREATMENT == pms.WITH_HAND and pms.NB_HANDICAP == 0:
+                raise ValueError(u"Il faut un nombre de personnes à validité "
+                                 u"réduite positif!")
+            pms.NOMBRE_PERIODES = self._spin_periods.value()
+            pms.TAILLE_GROUPES = self._spin_groups.value()
+            pms.RENDEMENT_INDIV = self._spin_rendement_indiv.value()
+            pms.RENDEMENT_COLL = self._spin_rendement_coll.value()
+            pms.EXPECTATION = self._checkbox_expectation.isChecked()
+            pms.TAUX_CONVERSION = self._spin_conversion_rate.value()
+        except ValueError as e:
+            QtGui.QMessageBox.critical(
+                self, u"Attention", e.message)
+            return
+        else:
+            self.accept()
 
 
 class DHandi(QtGui.QDialog):
@@ -217,7 +248,7 @@ class DHandi(QtGui.QDialog):
 
 
 class DExpectation(QtGui.QDialog):
-    def __init__(self, defered, automatique, parent, text, expec_before=None):
+    def __init__(self, defered, automatique, parent, text):
         QtGui.QDialog.__init__(self, parent)
 
         self._defered = defered
@@ -233,8 +264,6 @@ class DExpectation(QtGui.QDialog):
             parent=self, minimum=pms.DECISION_MIN, maximum=pms.DECISION_MAX,
             interval=pms.DECISION_STEP, label=text[1],
             automatique=self._automatique)
-        if expec_before is not None:
-            self._spin_expectation.spinBox.setValue(expec_before)
         layout.addWidget(self._spin_expectation)
 
         button = QtGui.QDialogButtonBox(QtGui.QDialogButtonBox.Ok)

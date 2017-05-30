@@ -1,26 +1,32 @@
 # -*- coding: utf-8 -*-
 
 # variables
-BASELINE = 0
+WITHOUT_HAND = 0
 WITH_HAND = 1
-GROUP_UNIFORM = 0
-GROUP_MIX = 1
-TREATMENTS_NAMES = {BASELINE: "baseline"}
+TREATMENTS_NAMES = {WITHOUT_HAND: "Without_hand", WITH_HAND: "With_hand"}
 
 # parameters
-TREATMENT = BASELINE
+TREATMENT = WITHOUT_HAND
+NB_HANDICAP = 0
 DOTATION = 20
 RENDEMENT_INDIV = 1
 RENDEMENT_COLL = 0.5
-TAUX_CONVERSION = 0.5
+TAUX_CONVERSION = 0.07  # 15 ecus = 1 euro (arrondi supérieur)
 NOMBRE_PERIODES = 10
 TAILLE_GROUPES = 4
-GROUPES_CHAQUE_PERIODE = False
-PERIODE_ESSAI = False
 MONNAIE = u"ecu"
+EXPECTATION = True
 
 # DECISION
 DECISION_MIN = 0
 DECISION_MAX = DOTATION
 DECISION_STEP = 1
+
+
+def get_payoff_expectation(expectation, average_others):
+    if abs(expectation - round(average_others, 0)) <= 1:
+        return 1
+    else:
+        return 0
+
 

@@ -1,0 +1,122 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: handimix\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-05-30 16:45+0200\n"
+"PO-Revision-Date: 2017-05-30 16:47+0200\n"
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Last-Translator: Dimitri DUBOIS <dimitri.dubois@umontpellier.fr>\n"
+"Language-Team: Dimitri DUBOIS <dimitri.dubois@umontpellier.fr>\n"
+"X-Generator: Poedit 1.8.7.1\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+
+#: /home/dimitri/Documents/travail/programmes/le2m-v2.1/le2m/parts/handimix/handimixTexts.py:21
+msgid ""
+"Individual\n"
+"account"
+msgstr ""
+
+#: /home/dimitri/Documents/travail/programmes/le2m-v2.1/le2m/parts/handimix/handimixTexts.py:22
+msgid ""
+"Group\n"
+"account"
+msgstr ""
+
+#: /home/dimitri/Documents/travail/programmes/le2m-v2.1/le2m/parts/handimix/handimixTexts.py:23
+msgid ""
+"Total in\n"
+"the group\n"
+"account"
+msgstr ""
+
+#: /home/dimitri/Documents/travail/programmes/le2m-v2.1/le2m/parts/handimix/handimixTexts.py:25
+msgid ""
+"Payoff\n"
+"from\n"
+"individual\n"
+"account"
+msgstr ""
+
+#: /home/dimitri/Documents/travail/programmes/le2m-v2.1/le2m/parts/handimix/handimixTexts.py:27
+msgid ""
+"Payoff\n"
+"from\n"
+"group\n"
+"account"
+msgstr ""
+
+#: /home/dimitri/Documents/travail/programmes/le2m-v2.1/le2m/parts/handimix/handimixTexts.py:36
+msgid "You have an endowment of {} tokens."
+msgstr ""
+
+#: /home/dimitri/Documents/travail/programmes/le2m-v2.1/le2m/parts/handimix/handimixTexts.py:40
+msgid "Please enter the number of token(s) you put on the public account"
+msgstr ""
+
+#: /home/dimitri/Documents/travail/programmes/le2m-v2.1/le2m/parts/handimix/handimixTexts.py:45
+msgid ""
+"You put {} in your individual account and {} in the public account. Your "
+"group put {} in the public account.\n"
+"Your payoff for the current period is equal to {}."
+msgstr ""
+
+#: /home/dimitri/Documents/travail/programmes/le2m-v2.1/le2m/parts/handimix/handimixTexts.py:49
+#: /home/dimitri/Documents/travail/programmes/le2m-v2.1/le2m/parts/handimix/handimixTexts.py:50
+#: /home/dimitri/Documents/travail/programmes/le2m-v2.1/le2m/parts/handimix/handimixTexts.py:51
+msgid "token"
+msgstr ""
+
+#: /home/dimitri/Documents/travail/programmes/le2m-v2.1/le2m/parts/handimix/handimixTexts.py:57
+msgid ""
+"How much token(s) do you think the other members of your group will put, on "
+"average, in the collective account?"
+msgstr ""
+
+#: /home/dimitri/Documents/travail/programmes/le2m-v2.1/le2m/parts/handimix/handimixTexts.py:59
+msgid "Your expectation"
+msgstr ""
+
+#: /home/dimitri/Documents/travail/programmes/le2m-v2.1/le2m/parts/handimix/handimixTexts.py:64
+msgid "There are {} people with a handicap, each one is in a separate group."
+msgstr ""
+
+#: /home/dimitri/Documents/travail/programmes/le2m-v2.1/le2m/parts/handimix/handimixTexts.py:67
+msgid "There is no people with a handicap in your group."
+msgstr ""
+
+#: /home/dimitri/Documents/travail/programmes/le2m-v2.1/le2m/parts/handimix/handimixTexts.py:69
+msgid "There is one people with a handicap in your group."
+msgstr ""
+
+#: /home/dimitri/Documents/travail/programmes/le2m-v2.1/le2m/parts/handimix/handimixGui.py:50
+msgid "Decision"
+msgstr ""
+
+#: /home/dimitri/Documents/travail/programmes/le2m-v2.1/le2m/parts/handimix/handimixGui.py:156
+msgid "Expectations"
+msgstr ""
+
+#: /home/dimitri/Documents/travail/programmes/le2m-v2.1/le2m/parts/handimix/handimixGui.py:273
+msgid "Expectation"
+msgstr ""
+
+#: /home/dimitri/Documents/travail/programmes/le2m-v2.1/le2m/parts/handimix/handimixServ.py:25
+msgid "Set Hand."
+msgstr ""
+
+#: /home/dimitri/Documents/travail/programmes/le2m-v2.1/le2m/parts/handimix/handimixServ.py:60
+msgid "The number of players is not compatible with the group size"
+msgstr ""
+
+#: /home/dimitri/Documents/travail/programmes/le2m-v2.1/le2m/parts/handimix/handimixServ.py:141
+msgid "Total amount by group"
+msgstr ""
