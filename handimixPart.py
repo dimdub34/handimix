@@ -85,6 +85,12 @@ class PartieHM(Partie):
         """
         logger.debug(u"{} Period Payoff".format(self.joueur))
 
+        # average contribution of others
+        self.currentperiod.HM_public_account_average_others = \
+            int((self.currentperiod.HM_public_account_group -
+                 self.currentperiod.HM_public_account) / (
+                pms.TAILLE_GROUPES - 1))
+
         # indiv
         self.currentperiod.HM_payoff_from_indiv_account = \
             self.currentperiod.HM_indiv_account * pms.RENDEMENT_INDIV
