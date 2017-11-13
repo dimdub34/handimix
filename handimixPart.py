@@ -48,7 +48,7 @@ class PartieHM(Partie):
         """
         logger.debug(u"{} New Period".format(self.joueur))
         self.currentperiod = RepetitionsHM(period)
-        self.currentperiod.HM_group = self.joueur.groupe
+        self.currentperiod.HM_group = self.joueur.group
         self.currentperiod.HM_handicap = self.joueur.handicap
         self.currentperiod.HM_group_type = self.group_type
         self.currentperiod.HM_nb_handicap_in_group = self.nb_handicap_in_group
